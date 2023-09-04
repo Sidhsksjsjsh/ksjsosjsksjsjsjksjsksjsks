@@ -11,7 +11,7 @@ else
 end
 local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 
-local songName,plr
+local songName
 local debounce = false
 
 getgenv().stopped = false
@@ -38,10 +38,10 @@ end)
 end
 ]]
 function VortexAPI:Stop()
-			getgenv().stopped = true
-			debounce = true
-			task.wait(3)
-			debounce = false
+	getgenv().stopped = true
+	debounce = true
+	task.wait(3)
+	debounce = false
 end
   
 	if debounce then
@@ -52,17 +52,18 @@ end
 
   function VortexAPI:Send(text)
     local msg = string.lower(text):gsub('"', ''):gsub(' by ','/')
-    songSyncName = string.gsub(msg, " ", ""):lower()
+    songName = string.gsub(msg, " ", ""):lower()
 	local response
     local suc,er = pcall(function()
 	response = httprequest({
-		Url = "https://lyrist.vercel.app/api/" .. tostring(songSyncName),
+		Url = "https://lyrist.vercel.app/api/" .. tostring(songName),
 		Method = "GET",
 	})
     end)
     if not suc then
 	VortexAPI:RemoteReceive('Unexpected error, please retry')
-    ProtocolLoopSender:Disconnect()
+	wait(0.5)
+        ProtocolLoopSender:Disconnect()
 	task.wait(3)
 	debounce = false
 	return
@@ -72,7 +73,8 @@ end
 	if lyricsData.error and lyricsData.error == "Lyrics Not found" then
 		debounce = true
 		VortexAPI:RemoteReceive('Lyrics were not found')
-    ProtocolLoopSender:Disconnect()
+		wait(0.5)
+                ProtocolLoopSender:Disconnect()
 		task.wait(3)
 		debounce = false
 		return
@@ -95,6 +97,6 @@ end
 	task.wait(3)
 	debounce = false
 	VortexAPI:RemoteReceive('Ended. You can request songs again.')
-  wait(1)
+  wait(0.5)
   ProtocolLoopSender:Disconnect()
 end
